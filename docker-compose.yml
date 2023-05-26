@@ -1,0 +1,43 @@
+version: "3.1"
+services:
+
+  db:
+    image: mysql
+    container_name: chatbot_db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+    volumes:
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
+      - ./mysql_data:/var/lib/mysql
+
+  web:
+    build:
+      context: .
+      dockerfile: dockerfile-flask
+    container_name: chatbot_web
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    volumes:
+      - .:/code
+    environment:
+      FLASK_ENV: development
+      
+  ngrok:
+    image: wernight/ngrok
+    container_name: chatbot_ngrok
+    tty: true
+    stdin_open: true
+    restart: always
+    ports:
+      - "4040:4040"
+    depends_on:
+      - web
+    command: ngrok http chatbot_web:5000 -region ap
+  
+  

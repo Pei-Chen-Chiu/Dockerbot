@@ -1,0 +1,4 @@
+flask
+requests 
+line-bot-sdk 
+mysql-connector-python
